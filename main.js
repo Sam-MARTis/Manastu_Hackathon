@@ -239,9 +239,9 @@ class Satellite {
     const uy = dy / mag;
     const uz = dz / mag;
 
-    this.target.ax = -5 * ux;
-    this.target.ay = -5 * uy;
-    this.target.az = -5 * uz;
+    this.target.ax = 5 * ux;
+    this.target.ay = 5 * uy;
+    this.target.az = 5 * uz;
     this.closestApproachLine.geometry.setFromPoints(points);
     
   };
@@ -256,7 +256,6 @@ class Satellite {
 }
 
 
-
 class InterceptorSatellite{
   constructor(x, y, z, theta, phi, psi, size){
     this.x = x
@@ -264,31 +263,75 @@ class InterceptorSatellite{
     this.z = z
     this.size = size
     const radius = 20
+    this.core = new THREE.BoxGeometry(4*size, 3*size, 4*size)
+    this.coreMaterial = new THREE.MeshStandardMaterial({color: "white", wireframe: false})
+    this.coreMesh = new THREE.Mesh(this.core, this.coreMaterial)
+    this.coreMesh.position.set(0.0*size, -4.0*size, 0.0*size)
+    this.engine = new THREE.CylinderGeometry(1*size, 1.5*size, 2*size, 32)
+    this.engineMaterial = new THREE.MeshStandardMaterial({color: "gray", wireframe: false})
+    this.engineMesh = new THREE.Mesh(this.engine, this.engineMaterial)
+    this.engineMesh.position.set(0.0*size, -6.0*size, 0.0*size)
+    this.engineFlame = new THREE.CylinderGeometry(1.0*size, 0.1*size, 10*size, 32)
+    this.engineFlameMaterial = new THREE.MeshStandardMaterial({color: "#9931FF", transparent: true, opacity: 0.5, wireframe: false})
+    this.engineFlameMesh = new THREE.Mesh(this.engineFlame, this.engineFlameMaterial)
+    this.engineFlameMesh.position.set(0.0*size, -12.0*size, 0.0*size)
     this.mainBodyGeometry = new THREE.BoxGeometry(1*size, 2*size, 1*size)
     this.mainBodyMaterial = new THREE.MeshStandardMaterial({color: "hsl(51, 100%, 50%)", wireframe: false})
     this.mainBody = new THREE.Mesh(this.mainBodyGeometry, this.mainBodyMaterial)
     this.fabricGeometry = new THREE.CylinderGeometry(radius*size, radius*size, 0.1*size, 32)
-    this.fabricMaterial = new THREE.MeshStandardMaterial({color: "rgb(200, 100, 90)", wireframe: false})
+    this.fabricMaterial = new THREE.MeshStandardMaterial({color: "black", wireframe: true})
+    this.fabricMaterialMain = new THREE.MeshStandardMaterial({color: "blue", wireframe: false})
     this.fabric = new THREE.Mesh(this.fabricGeometry, this.fabricMaterial)
-    this.fabric.position.set(0.0*size, 1*size, 0.4*size)
+    this.fabricMain = new THREE.Mesh(this.fabricGeometry, this.fabricMaterialMain)
+    this.fabric.position.set(0.0*size, 1*size, 0*size)
+    this.fabric.rotation.set(0, 0, 0)
+    this.fabricMain.position.set(0.0*size, 1*size, 0*size)
+    this.fabricMain.scale.set(1, 0.1, 1)
+
     this.fabricBack1 = new THREE.Mesh(this.fabricGeometry, this.fabricMaterial)
-    this.fabricBack1.position.set(0.0*size, -1*size, 0.4*size)
+    this.fabricBack1.position.set(0.0*size, -1*size, 0*size)
+    this.fabrixBackMain = new THREE.Mesh(this.fabricGeometry, this.fabricMaterialMain)
+    this.fabrixBackMain.position.set(0.0*size, -1*size, 0*size)
+    this.fabrixBackMain.scale.set(1, 0.1, 1)
     this.mainBody2 = new THREE.Mesh(this.mainBodyGeometry, this.mainBodyMaterial)
     this.mainBody2.position.set(0.0*size, -2*size, 0.0*size)
 
     this.things = new THREE.Group()
     this.things.add(this.mainBody)
+    this.things.add(this.coreMesh)
+    this.things.add(this.engineMesh)
+    this.things.add(this.engineFlameMesh)
     this.things.add(this.mainBody2)
     this.things.add(this.fabric)
+    this.things.add(this.fabricMain)
     this.things.add(this.fabricBack1)
+    this.things.add(this.fabrixBackMain)
     this.things.position.set(x, y, z)
     this.things.rotation.set(theta, phi, psi)
     scene.add(this.things)
   }
+
+  fold1 = (size) => {
+    const w = 1.8
+    const mu = 200
+    this.fabric.rotation.set(0, w*(1-(size)), 0)
+    this.fabricMain.scale.set(1*size, 0.1*(1+mu*(1-size)), 1*size)
+    this.fabric.scale.set(1*size, 0.1*(1+mu*(1-size)), 1*size)
+
+  }
+
+  fold2 = (size) => {
+    const w = 1.8
+    const mu = 200
+    this.fabricBack1.rotation.set(0, w*(1-(size)), 0)
+    this.fabrixBackMain.scale.set(1*size, 0.1*(1+mu*(1-size)), 1*size)
+    this.fabricBack1.scale.set(1*size, 0.1*(1+mu*(1-size)), 1*size)
+
+  }
 }
 
 const INTERCEPTOR_POS = 80;
-const interceptor = new InterceptorSatellite(0, 0, INTERCEPTOR_POS, -Math.PI/2, 0, 0, 0.3)
+const interceptor = new InterceptorSatellite(0, 0, INTERCEPTOR_POS, -Math.PI/2, 0, 0, 0.5)
 
 // Existing code for Debris class and other parts of the file
 
