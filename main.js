@@ -124,6 +124,17 @@ class Debris{
     this.vy += this.ay * dt
     this.vz += this.az * dt
     this.mesh.position.set(this.x, this.y, this.z)
+    if(this.z> INTERCEPTOR_POS){
+      this.ax = 0
+      this.ay = 0
+      this.az = 0
+      // this.vx = 0
+      // this.vy = 0
+
+      this.z -= 0.8*this.vz*dt
+      this.y -= 0.8*this.vy*dt
+      this.x -= 0.8*this.vx*dt
+    }
 
   }
 }
@@ -219,11 +230,26 @@ class Satellite {
       new THREE.Vector3(this.x, this.y, this.z),
       new THREE.Vector3(this.target.x, this.target.y, this.target.z),
     ];
+
+    const dx = this.target.x - this.x;
+    const dy = this.target.y - this.y;
+    const dz = this.target.z - this.z;
+    const mag = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    const ux = dx / mag;
+    const uy = dy / mag;
+    const uz = dz / mag;
+
+    this.target.ax = -5 * ux;
+    this.target.ay = -5 * uy;
+    this.target.az = -5 * uz;
     this.closestApproachLine.geometry.setFromPoints(points);
     
   };
 
   stopTracking = () => {
+    this.target.ax = 0;
+    this.target.ay = 0;
+    this.target.az = 0;
     this.target = null;
     this.closestApproachLine.geometry.setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
   };
@@ -242,7 +268,7 @@ class InterceptorSatellite{
     this.mainBodyMaterial = new THREE.MeshStandardMaterial({color: "hsl(51, 100%, 50%)", wireframe: false})
     this.mainBody = new THREE.Mesh(this.mainBodyGeometry, this.mainBodyMaterial)
     this.fabricGeometry = new THREE.CylinderGeometry(radius*size, radius*size, 0.1*size, 32)
-    this.fabricMaterial = new THREE.MeshStandardMaterial({color: "red", wireframe: false})
+    this.fabricMaterial = new THREE.MeshStandardMaterial({color: "rgb(200, 100, 90)", wireframe: false})
     this.fabric = new THREE.Mesh(this.fabricGeometry, this.fabricMaterial)
     this.fabric.position.set(0.0*size, 1*size, 0.4*size)
     this.fabricBack1 = new THREE.Mesh(this.fabricGeometry, this.fabricMaterial)
@@ -261,7 +287,8 @@ class InterceptorSatellite{
   }
 }
 
-const interceptor = new InterceptorSatellite(0, 0, 80, -Math.PI/2, 0, 0, 1)
+const INTERCEPTOR_POS = 80;
+const interceptor = new InterceptorSatellite(0, 0, INTERCEPTOR_POS, -Math.PI/2, 0, 0, 0.3)
 
 // Existing code for Debris class and other parts of the file
 
@@ -272,10 +299,10 @@ const satellite = new Satellite(-scale*8.66 *globalScale, -scale*5*globalScale, 
 const satellite2 = new Satellite(+scale*8.66*globalScale, -scale*5*globalScale, (0-offset)*globalScale, 0, 0, 0, 1)
 const satellite3 = new Satellite(0, scale*10*globalScale, 0, 0, 0, 3.14, 1)
 
+debris = new Debris(0, 0, -100, 0, 0, 50, 1, 1)
 
-debris = new Debris(0, 0, -100, 0, 0, 10, 1, 4)
-
-camera.position.z = 80;
+camera.position.z = 150;
+camera.position.y = 200;
 // camera.rotateOnWorldAxis(THREE.Vector3(0, 0, 0), 1)
 // camera.rotation.set(1, 4, 1)
 // camera.rotateY(1)
