@@ -229,6 +229,40 @@ class Satellite {
   };
 }
 
+
+
+class InterceptorSatellite{
+  constructor(x, y, z, theta, phi, psi, size){
+    this.x = x
+    this.y = y
+    this.z = z
+    this.size = size
+    const radius = 20
+    this.mainBodyGeometry = new THREE.BoxGeometry(1*size, 2*size, 1*size)
+    this.mainBodyMaterial = new THREE.MeshStandardMaterial({color: "hsl(51, 100%, 50%)", wireframe: false})
+    this.mainBody = new THREE.Mesh(this.mainBodyGeometry, this.mainBodyMaterial)
+    this.fabricGeometry = new THREE.CylinderGeometry(radius*size, radius*size, 0.1*size, 32)
+    this.fabricMaterial = new THREE.MeshStandardMaterial({color: "red", wireframe: false})
+    this.fabric = new THREE.Mesh(this.fabricGeometry, this.fabricMaterial)
+    this.fabric.position.set(0.0*size, 1*size, 0.4*size)
+    this.fabricBack1 = new THREE.Mesh(this.fabricGeometry, this.fabricMaterial)
+    this.fabricBack1.position.set(0.0*size, -1*size, 0.4*size)
+    this.mainBody2 = new THREE.Mesh(this.mainBodyGeometry, this.mainBodyMaterial)
+    this.mainBody2.position.set(0.0*size, -2*size, 0.0*size)
+
+    this.things = new THREE.Group()
+    this.things.add(this.mainBody)
+    this.things.add(this.mainBody2)
+    this.things.add(this.fabric)
+    this.things.add(this.fabricBack1)
+    this.things.position.set(x, y, z)
+    this.things.rotation.set(theta, phi, psi)
+    scene.add(this.things)
+  }
+}
+
+const interceptor = new InterceptorSatellite(0, 0, 80, -Math.PI/2, 0, 0, 1)
+
 // Existing code for Debris class and other parts of the file
 
 const globalScale = 1
